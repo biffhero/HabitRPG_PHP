@@ -15,6 +15,8 @@ Well, for one thing it's one less thing for you to manage, I already have a serv
 
 Also, this may be more useful for desktop/mobile applications, but who knows.  I put this together, use it if you'd like.
 
+###**NOTE: You do not need to use this API with POSTs... you could define any values statically.**
+
 ##Links
 
 Link to [HabitRPG](https://habitrpg.com).  Link to it's awesome [Kickstarter](https://www.kickstarter.com/projects/lefnire/habitrpg-mobile) (which you should totally pledge to).  Link to the [source] (https://github.com/lefnire/habitrpg).

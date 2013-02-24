@@ -1,13 +1,15 @@
 #HabitRPG_PHP
 A PHP class for the HabitRPG API
 
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/ruddfawcett/HabitRPG_PHP/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
 ##Current Features
 
 - [Habit Scoring] (https://github.com/lefnire/habitrpg/wiki/API)
 
 ##Future Features
 
-- Whichever API methods become available to HabitRPG! :smile:
+- Whichever API methods become available to HabitRPG!
 
 ##Links
 

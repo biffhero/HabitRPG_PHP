@@ -4,7 +4,7 @@
 	Author: Rudd Fawcett
 	URL: http://ruddfawcett.com, http://github.com/ruddfawcett
 	Last Commit: 2/21/2013
-	Version: 1.1
+	Version: 1.2
 	*/
 
 class HabitRPG {
@@ -47,11 +47,11 @@ class HabitRPG {
 				return $this->curl($scoringEndpoint,$scoringPostBody);
 			}
 			else {
-				return json_encode(array("error"=>"some parameters are null"));
+				throw new Exception("Required keys of $scoringParams are null.");
 			}
 		}
 		else {
-			return json_encode(array("error"=>"habitScoring takes an array"));
+			throw new Exception("habitScoring takes an array as it's parameter.");
 		}
 	}
 	
@@ -74,10 +74,10 @@ class HabitRPG {
 		curl_close($curl);
 		
 		if ($habitRPGHTTPCode == 200) {
-			return json_encode(array("result"=>"true","habitRPGData"=>json_decode($habitRPGResponse)));
+			return array("result"=>"true","habitRPGData"=>json_decode($habitRPGResponse,true));
 		}
 		else {
-			return str_replace('\/','/',json_encode(array("error"=>"the cURL returned a non 200 http code","httpCode"=>$habitRPGHTTPCode,"endpoint"=>$endpoint,"dataSent"=>json_decode($postBody))));
+			return array("error"=>"the cURL returned a non 200 http code","httpCode"=>$habitRPGHTTPCode,"endpoint"=>$endpoint,"dataSent"=>json_decode($postBody,true));
 		}
 	}
 }

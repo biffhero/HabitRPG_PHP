@@ -149,6 +149,7 @@ class HabitRPG {
 		$curlArray = array(
 							CURLOPT_RETURNTRANSFER => true, 
 							CURLOPT_HEADER => false, 
+							CURLOPT_ENCODING => "gzip",
 							CURLOPT_HTTPHEADER => array("Content-type: application/json","x-api-user:".$this->userId,"x-api-key:".$this->apiToken),
 							CURLOPT_URL => $endpoint);
 		switch($curlType) {

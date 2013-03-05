@@ -3,7 +3,7 @@
 	A PHP class for HabitRPG API
 	Author: Rudd Fawcett
 	URL: http://ruddfawcett.com, http://github.com/ruddfawcett
-	Last Commit:3/5/2013
+	Last Commit:3/3/2013
 	Version: 1.3
 	*/
 
@@ -42,6 +42,36 @@ class HabitRPG {
 	// habitScoring function, allows users to up or down tasks by ids
 	// takes array as parameter - $scoringParams which is required to
 	// contain taskId and direction of of scoring
+	// DEPRECATED (I THINK)
+	
+	public function habitScoring($scoringParams) {
+		if(is_array($scoringParams)) {
+			if(!empty($scoringParams['taskId']) && !empty($scoringParams['direction'])) {
+				$scoringEndpoint="http://habitrpg.com/v1/users/".$this->userId."/tasks/".$scoringParams['taskId']."/".$scoringParams['direction'];
+				$scoringPostBody=array();
+				$scoringPostBody['apiToken']=$this->apiToken;
+				if(!empty($scoringParams['title'])) {
+					$scoringPostBody['title']=$scoringParams['title'];
+				}
+				if(!empty($scoringParams['service'])) {
+					$scoringPostBody['service']=$scoringParams['service'];
+				}
+				if(!empty($scoringParams['icon'])) {
+					$scoringPostBody['icon']=$scoringParams['icon'];
+				}
+				
+				$scoringPostBody=json_encode($scoringPostBody);
+				
+				return $this->curl($scoringEndpoint,"POST",$scoringPostBody);
+			}
+			else {
+				throw new Exception("Required keys of $scoringParams are null.");
+			}
+		}
+		else {
+			throw new Exception("habitScoring takes an array as it's parameter.");
+		}
+	}
 	
 	public function newTask($newTaskParams) {
 		if(is_array($newTaskParams)) {
@@ -77,12 +107,23 @@ class HabitRPG {
 	
 	// Grabs all of the user's tasks on HabitRPG
 	
-	public function userTasks($userTasksType=NULL) {
-		$userTasksEndpoint=$this->apiURL."/tasks";
-		if($userTasksType != NULL) {
-			$userTasksEndpoint=$this->apiURL."/tasks?type=".$userTasksType;
+	public function userTasks($userTaskParams) {
+		if(!empty($userTaskParams)) {
+			if(is_array($userTasksParams)) {
+				$userTasksEndpoint=$this->apiURL."/tasks";
+				$userTasksPostBody=array();
+				if(!empty($newTask['type'])) {
+					$userTasksPostBody['type']=$newTask['type'];
+				}
+				
+				$userTasksPostBody=json_encode($taskPostBody);
+				
+				return $this->curl($userTasksEndpoint,"GET",$userTasksPostBody);
+			}
+			else {
+				throw new Exception("userTasks takes an array as it's parameter.");
+			}
 		}
-			return $this->curl($userTasksEndpoint,"GET",NULL);
 	}	
 	
 	// Grabs specific details of a task for an HabitRPG user
@@ -95,27 +136,7 @@ class HabitRPG {
 		}
 		else {
 			throw new Exception("userGetTask needs a value as it's parameter.");
-		}
-	}
-	
-	public function updateTask($updateParams) {
-		if(is_array($updateParams)) {
-			if(!empty($updateParams['taskId']) && !empty($updateParams['text'])) {
-				$updateParamsEndpoint=$this->apiURL."/task/".$updateParams['taskId'];
-				$updateTaskPostBody=array();
-				$updateTaskPostBody['text'] = $updateParams['text'];
-				
-				$updateTaskPostBody=json_encode($updateTaskPostBody);
-				
-				return $this->curl($updateParamsEndpoint,"PUT",$updateTaskPostBody);
 			}
-			else {
-				throw new Exception("Required keys of $updateParams are null.");
-			}
-		}
-		else {
-			throw new Exception("updateTask takes an array as it's parameter.");
-		}
 	}
 	
 	// A cURL function to handle all curls which require POSTs.
@@ -129,10 +150,7 @@ class HabitRPG {
 							CURLOPT_RETURNTRANSFER => true, 
 							CURLOPT_HEADER => false, 
 							CURLOPT_ENCODING => "gzip",
-							CURLOPT_HTTPHEADER => array(
-														"Content-type: application/json",
-														"x-api-user:".$this->userId,
-														"x-api-key:".$this->apiToken),
+							CURLOPT_HTTPHEADER => array("Content-type: application/json","x-api-user:".$this->userId,"x-api-key:".$this->apiToken),
 							CURLOPT_URL => $endpoint);
 		switch($curlType) {
 			case "POST":
@@ -144,8 +162,7 @@ class HabitRPG {
 				curl_setopt_array($curl, $curlArray);
 				break;
 			case "PUT":
-				$curlArray[CURLOPT_CUSTOMREQUEST] = "PUT";				
-				$curlArray[CURLOPT_POSTFIELDS] = $postBody;
+				$curlArray[CURLOPT_CUSTOMREQUEST] = "PUT";
 				curl_setopt_array($curl, $curlArray);
 				break;
 			case "DELETE":

@@ -1,10 +1,10 @@
 <?php
 	/*
-	A PHP class for HabitRPG API
-	Author: Rudd Fawcett
-	URL: http://ruddfawcett.com, http://github.com/ruddfawcett
-	Last Commit:3/3/2013
-	Version: 1.3
+	  PHP class for HabitRPG API
+	  Author: Rudd Fawcett
+	  URL: http://ruddfawcett.com, http://github.com/ruddfawcett
+	  Last Commit:3/3/2013
+	  Version: 1.3
 	*/
 
 class HabitRPG {

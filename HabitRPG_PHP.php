@@ -1,27 +1,39 @@
 <?php
 	/*
-	A PHP class for HabitRPG API
-	Author: Rudd Fawcett
-	URL: http://ruddfawcett.com, http://github.com/ruddfawcett
-	Last Commit:3/5/2013
-	Version: 1.3
-	*/
+	 * @author Rudd Fawcett <rudd.fawcett@gmail.com>
+	 * @version 1.4
+	 * @link http://github.com/ruddfawcett/HabitRPG_PHP
+	 * @package HabitRPG_PHP
+	 */
 
 class HabitRPG {
 	public $userId;
 	public $apiToken;
 	public $apiURL;
 	
+	/**
+	 * Creates a new HabitRPG instance
+	 */
+	 
 	public function __construct ($userId, $apiToken) {
-		
-		// Check to see if this is the latest version of the class
-		
-		$currentVersion = "1.3";
-		
-		if ($this->currentVersion() != $currentVersion) {
-			throw new Exception("Please update to the latest version of this PHP wrapper (version ".$this->currentVersion().")! It most likely has updated functions and is better!  Here's a link: http://github.com/ruddfawcett/HabitRPG_PHP");
+			
+		/** 
+		 * currentVersion() checks to see if this class is the current version, based 
+		 * on a JSON file I host on my website. This is to ensure you are using the latest,
+		 * up-to-date version to avoid errors with your scripts.
+		 */
+		 
+		function currentVersion() {
+			$JSON = json_decode(file_get_contents("http://ruddfawcett.com/projects/HabitRPG_PHP/currentVersion.json"),true);
+			$currentVersion = $JSON['currentVersion'];
+			
+			return $currentVersion;
 		}
 		
+		if (currentVersion() != "1.4") {
+			throw new Exception("Please update to the latest version of this PHP wrapper (version ".$this->currentVersion().")! It most likely has updated functions and is better!  Here's a link: http://github.com/ruddfawcett/HabitRPG_PHP");
+		}
+
 		$this->userId = $userId;
 		$this->apiToken = $apiToken;
 		$this->apiURL = "https://habitrpg.com/api/v1/user";
@@ -31,17 +43,11 @@ class HabitRPG {
 		}
 	}
 	
-	// Grabs the current version of the PHP API, and compares it with this version...
-	private function currentVersion() {
-		$JSON = json_decode(file_get_contents("http://ruddfawcett.com/projects/HabitRPG_PHP/currentVersion.json"),true);
-		$currentVersion = $JSON['currentVersion'];
-		
-		return $currentVersion;
-	}
-	
-	// habitScoring function, allows users to up or down tasks by ids
-	// takes array as parameter - $scoringParams which is required to
-	// contain taskId and direction of of scoring
+	/**
+	 * Creates a new task for the userId and apiToken HabitRPG is initiated with
+	 * @param array $newTaskParams required keys: type, title and text
+	 * @param array $newTaskParams optional keys: value and note
+	 */
 	
 	public function newTask($newTaskParams) {
 		if(is_array($newTaskParams)) {
@@ -69,13 +75,55 @@ class HabitRPG {
 		}
 	}
 	
-	// Grabs all of the information about a user on HabitRPG
+	/**
+	 * Up votes or down votes a task by taskId using apiToken and userId
+	 * @param array $scoringParams required keys: taskId and direction
+	 * @param array $scoringParams optional keys: title, service and icon
+	 */
+	
+	public function taskScoring($scoringParams) {
+		if(is_array($scoringParams)) {
+			if(!empty($scoringParams['taskId']) && !empty($scoringParams['direction'])) {
+				$scoringEndpoint="http://habitrpg.com/v1/users/".$this->userId."/tasks/".$scoringParams['taskId']."/".$scoringParams['direction'];
+				$scoringPostBody=array();
+				$scoringPostBody['apiToken']=$this->apiToken;
+				if(!empty($scoringParams['title'])) {
+					$scoringPostBody['title']=$scoringParams['title'];
+				}
+				if(!empty($scoringParams['service'])) {
+					$scoringPostBody['service']=$scoringParams['service'];
+				}
+				if(!empty($scoringParams['icon'])) {
+					$scoringPostBody['icon']=$scoringParams['icon'];
+				}
+				
+				$scoringPostBody=json_encode($scoringPostBody);
+				
+				return $this->curl($scoringEndpoint,"POST",$scoringPostBody);
+			}
+			else {
+				throw new Exception("Required keys of $scoringParams are null.");
+			}
+		}
+		else {
+			throw new Exception("taskScoring takes an array as it's parameter.");
+		}
+	}	
+	
+	/**
+	 * Grabs all a user's info using the apiToken and userId
+	 * @function userStats() no parameter's required, uses userId and apiToken
+	 */
 	
 	public function userStats() {
 		return $this->curl($this->apiURL,"GET",NULL);
 	}
 	
-	// Grabs all of the user's tasks on HabitRPG
+	/**
+	 * Gets a JSON feed of all of a users task using apiToken and userId
+	 * @param string $userTasksType ex. habit,todo,daily (optional null value)
+	 * @param string $userTasksType allows to output only certain type of task
+	 */
 	
 	public function userTasks($userTasksType=NULL) {
 		$userTasksEndpoint=$this->apiURL."/tasks";
@@ -85,7 +133,10 @@ class HabitRPG {
 			return $this->curl($userTasksEndpoint,"GET",NULL);
 	}	
 	
-	// Grabs specific details of a task for an HabitRPG user
+	/**
+	 * Get's info for a certain task only for the apiToken and userId passed
+	 * @param string $taskId taskId for user task, which can be grabbed from userTasks()
+	 */
 	
 	public function userGetTask($taskId) {
 		if(!empty($taskId)) {
@@ -98,6 +149,11 @@ class HabitRPG {
 		}
 	}
 	
+	/**
+	 * Updates a task's for a userId and apiToken combo and a taskId
+	 * @param array $updateParams required keys: taskId and text
+	 */
+	 	
 	public function updateTask($updateParams) {
 		if(is_array($updateParams)) {
 			if(!empty($updateParams['taskId']) && !empty($updateParams['text'])) {
@@ -118,10 +174,12 @@ class HabitRPG {
 		}
 	}
 	
-	// A cURL function to handle all curls which require POSTs.
-	// Will add switch and eliminate future exceptions of DELETE, PUT, etc.
-	// merging all into a curl function
-	// curl takes endpoint and postBody from any other function
+	/**
+	 * Performs all cURLs that are initated in each function, private function
+	 * @param string $endpoint is the URL of the cURL
+	 * @param string $curlType is the type of the cURL for the switch, e.g. PUT, POST, GET, etc.
+	 * @param array $postBody is the data that is posted to $endpoint in JSON
+	 */
 	
 	private function curl($endpoint,$curlType,$postBody) {
 		$curl = curl_init();
@@ -159,7 +217,7 @@ class HabitRPG {
 		
 		curl_close($curl);
 		
-		if ($habitRPGHTTPCode == 200) {
+		if ($habitRPGHTTPCode == 200 || 201 || 202) {
 			return array("result"=>true,"habitRPGData"=>json_decode($habitRPGResponse,true));
 		}
 		else {

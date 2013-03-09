@@ -217,7 +217,7 @@ class HabitRPG {
 		
 		curl_close($curl);
 		
-		if ($habitRPGHTTPCode == 200 || 201 || 202) {
+		if ($habitRPGHTTPCode == 200) {
 			return array("result"=>true,"habitRPGData"=>json_decode($habitRPGResponse,true));
 		}
 		else {

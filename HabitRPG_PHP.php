@@ -16,23 +16,6 @@ class HabitRPG {
 	 */
 	 
 	public function __construct ($userId, $apiToken) {
-			
-		/** 
-		 * currentVersion() checks to see if this class is the current version, based 
-		 * on a JSON file I host on my website. This is to ensure you are using the latest,
-		 * up-to-date version to avoid errors with your scripts.
-		 */
-		 
-		function currentVersion() {
-			$JSON = json_decode(file_get_contents("http://ruddfawcett.com/projects/HabitRPG_PHP/currentVersion.json"),true);
-			$currentVersion = $JSON['currentVersion'];
-			
-			return $currentVersion;
-		}
-		
-		if (currentVersion() != "1.4") {
-			throw new Exception("Please update to the latest version of this PHP wrapper (version ".$this->currentVersion().")! It most likely has updated functions and is better!  Here's a link: http://github.com/ruddfawcett/HabitRPG_PHP");
-		}
 
 		$this->userId = $userId;
 		$this->apiToken = $apiToken;
@@ -84,7 +67,7 @@ class HabitRPG {
 	public function taskScoring($scoringParams) {
 		if(is_array($scoringParams)) {
 			if(!empty($scoringParams['taskId']) && !empty($scoringParams['direction'])) {
-				$scoringEndpoint="http://habitrpg.com/v1/users/".$this->userId."/tasks/".$scoringParams['taskId']."/".$scoringParams['direction'];
+				$scoringEndpoint="https://habitrpg.com/v1/users/".$this->userId."/tasks/".$scoringParams['taskId']."/".$scoringParams['direction'];
 				$scoringPostBody=array();
 				$scoringPostBody['apiToken']=$this->apiToken;
 				if(!empty($scoringParams['title'])) {
